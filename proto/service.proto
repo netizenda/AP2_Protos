@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package api.v1;
+
+option go_package = "github.com/netizenda/AP2_Generated/proto/v1";
+
+import "google/protobuf/timestamp.proto";
+
+service PaymentService {
+  // Unary RPC - используется Order Service для оплаты
+  rpc ProcessPayment(PaymentRequest) returns (PaymentResponse);
+}
+
+service OrderService {
+  // Server-side Streaming RPC - для реального отслеживания статуса заказа
+  rpc SubscribeToOrderUpdates(OrderRequest) returns (stream OrderStatusUpdate);
+}
+
+message PaymentRequest {
+  string order_id = 1;
+  int64 amount = 2;
+}
+
+message PaymentResponse {
+  string status = 1;           
+  string transaction_id = 2;
+}
+
+message OrderRequest {
+  string order_id = 1;
+}
+
+message OrderStatusUpdate {
+  string order_id = 1;
+  string status = 2;           
+  google.protobuf.Timestamp updated_at = 3;
+}
