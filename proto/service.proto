@@ -1,17 +1,18 @@
 syntax = "proto3";
 
-package api.v1;
-
-option go_package = "github.com/netizenda/AP2_Generated/proto/v1";
+package proto.v1;
 
 import "google/protobuf/timestamp.proto";
 
+option go_package = "github.com/netizenda/AP2_Generated/proto/v1";
+
 service PaymentService {
   rpc ProcessPayment(PaymentRequest) returns (PaymentResponse);
+  rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse); 
 }
 
 service OrderService {
-  rpc SubscribeToOrderUpdates(OrderRequest) returns (stream OrderStatusUpdate);
+  rpc SubscribeToOrderUpdates(OrderSubscribeRequest) returns (stream OrderStatusUpdate);
 }
 
 message PaymentRequest {
@@ -20,17 +21,25 @@ message PaymentRequest {
 }
 
 message PaymentResponse {
-  string status = 1;           // Authorized или Declined
+  string status = 1;        // "Authorized", "Declined", "Failed"
   string transaction_id = 2;
+  google.protobuf.Timestamp created_at = 3;
 }
 
-message OrderRequest {
-  string order_id = 1;
+message ListPaymentsRequest {
+  string status = 1;        // "Authorized" "Declined"
+}
+
+message ListPaymentsResponse {
+  repeated PaymentResponse payments = 1;
+}
+
+message OrderSubscribeRequest {
+  string customer_id = 1;
 }
 
 message OrderStatusUpdate {
   string order_id = 1;
-  string status = 2;           // Pending, Paid, Failed, Cancelled
+  string status = 2;
   google.protobuf.Timestamp updated_at = 3;
 }
-
